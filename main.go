@@ -6,6 +6,7 @@ import (
 
 func main() {
 	// Define stablecoins
+	stableCoins := []string{"USDC", "USDT", "DAI", "VAI", "RAI", "UST", "USDD", "TUSD", "LUSD", "XUSD"}
 	// Load Environment variables
 	// Connect to database
 	// Create table "topN funding rates" primary keys fundingTime and symbol
