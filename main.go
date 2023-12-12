@@ -51,7 +51,9 @@ const snapshotsTableName = "marketcap_snapshots"
 const topN = 100
 
 // First snapshot entry from CoinMarketCap is April 28th, 2013
-var dataStartDate = time.Date(2013, 4, 28, 0, 0, 0, 0, time.UTC)
+// var dataStartDate = time.Date(2013, 4, 28, 0, 0, 0, 0, time.UTC)
+// Binance futures went live Sep. 13, 2019. First CoinMarketCap snapshot entry after that was the 15th
+var dataStartDate = time.Date(2019, 9, 15, 0, 0, 0, 0, time.UTC)
 
 var fundingTableName = "top" + strconv.Itoa(topN) + "_historical_funding_rates"
 
@@ -147,8 +149,10 @@ func main() {
 		log.Fatal("io.ReadAll error | ", err)
 	}
 	json.Unmarshal(msg, &resp)
-	if strings.Contains(resp["msg"].(string), "restricted location") {
-		log.Fatal("IP is being geoblocked, check location or VPN | ", resp["msg"])
+	if resp["msg"] != nil {
+		if strings.Contains(resp["msg"].(string), "restricted location") {
+			log.Fatal("IP is being geoblocked, check location or VPN | ", resp["msg"])
+		}
 	}
 	// #endregion
 
@@ -163,11 +167,12 @@ func main() {
 		}
 		log.Println("Symbols at snapshot date: ", snapshot)
 		log.Println(symbols)
+		var queuedFundingRates []FundingRate
 		for _, symbol := range symbols {
 			// TODO
 			// Add check if there are already more coins in the slice than
 			// topN and break from this loop
-			url = fmt.Sprintf("https://fapi.binance.com/fapi/v1/fundingRate?symbol=%sUSDT&startTime=%v&endTime=%v", symbol, date.UnixMilli(), date.AddDate(0, 0, 7).UnixMilli()-1)
+			url = fmt.Sprintf("https://fapi.binance.com/fapi/v1/fundingRate?symbol=%sUSDT&startTime=%v&endTime=%v", symbol, snapshot.UnixMilli(), snapshot.AddDate(0, 0, 7).UnixMilli()-1)
 			log.Println(url)
 			res, err := http.Get(url)
 			if err != nil {
@@ -178,19 +183,20 @@ func main() {
 			if err != nil {
 				log.Fatal("io.ReadAll error | ", err)
 			}
-			var FundingRates []FundingRate
-			json.Unmarshal(msg, &FundingRates)
-			log.Println("Number of funding rates: ", len(FundingRates))
-			if len(FundingRates) < 21 {
-				log.Println("Not enough fundingrate history in this period. Skipping coin | ", symbol)
+			var fundingRates []FundingRate
+			json.Unmarshal(msg, &fundingRates)
+			log.Println("Number of funding rates: ", len(fundingRates))
+			if len(fundingRates) < 21 {
+				log.Println("Not enough funding rate history in this period. Skipping coin | ", symbol)
 			} else {
-				// TO DO try adding snapshot date field to FundingRate struct
+				// TODO try adding snapshot date field to FundingRate struct
 				// test if it still unmarshals and i can add the snapshot date manually
 				// initialize a slice of queued FundingRate structs and append to them
 				// to be added to the table after all
-				queuedFundingRates = append(queuedFundingRates)
+				queuedFundingRates = append(queuedFundingRates, fundingRates...)
 			}
 			time.Sleep(500 * time.Millisecond)
+			log.Println(queuedFundingRates)
 		}
 	}
 	// For tickers in slice: poll binance public api for fundingrate info
