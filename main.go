@@ -15,32 +15,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"github.com/readysetliqd/binance-funding-rates-go/data"
 )
-
-type FundingRate struct {
-	Symbol string `json:"symbol"`
-	Time   int64  `json:"fundingTime"`
-	Rate   string `json:"fundingRate"`
-	Mark   string `json:"markPrice"`
-}
-
-var stableCoins = []string{
-	"'BUSD'",
-	"'BITEUR'",
-	"'BITUSD'",
-	"'DAI'",
-	"'LUSD'",
-	"'RAI'",
-	"'TUSD'",
-	"'USDC'",
-	"'USDD'",
-	"'USDP'",
-	"'USDT'",
-	"'UST'",
-	"'VAI'",
-	"'XUSD'",
-}
-var stableCoinsQuery = strings.Join(stableCoins, ",")
 
 // Table name of already existing table with weekly snapshots of all cryptocurrencies ranked
 // by marketca. Table built from github.com/readysetliqd/cryto-historical-marketcas-scraper-go
@@ -97,9 +73,8 @@ func main() {
 		queryCreateTable := `CREATE TABLE ` + fundingTableName + `(
 			snapshot_date DATE,
 			symbol TEXT,
-			rank INTEGER,
 			funding_time BIGINT NOT NULL,
-			funding_rate DECIMAL,
+			funding_rate DECIMAL NOT NULL,
 			mark_price DECIMAL,
 			
 			PRIMARY KEY (symbol, funding_time)
@@ -157,14 +132,23 @@ func main() {
 	// #endregion
 
 	for _, snapshot := range snapshots {
+		// #region Set slice of symbols to check for funding rate history on Binance
 		var symbols []string
 		// HARDCODED WORKAROUND
 		// Binance futures only had 3 markets in 2019, 80 markets in 2020.
 		// Hardcoding the symbols list speeds up the data collection by avoiding
 		// unneccessary API calls especially with higher values for topN const (20+)
+		// Symbols lists made by hand reading through Binance announcements
 		if snapshot.Before(time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC)) {
-			symbols = []string{"BTC", "ETH", "BCH"}
+			symbols = data.SymbolsBefore2020
+		} else if snapshot.Before(time.Date(2021, time.January, 1, 0, 0, 0, 0, time.UTC)) {
+			symbols = data.SymbolsBefore2021
+		} else if snapshot.Before(time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)) {
+			symbols = data.SymbolsBefore2022
+		} else if snapshot.Before(time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC)) {
+			symbols = data.SymbolsBefore2023
 		} else {
+			var stableCoinsQuery = strings.Join(data.StableCoins, ",")
 			symbolRows, err := dbpool.Query(ctx, `SELECT symbol FROM `+snapshotsTableName+` WHERE snapshot_date = '`+snapshot.Format("2006-01-02")+`' AND symbol NOT IN (`+stableCoinsQuery+`) GROUP BY symbol, rank ORDER BY rank ASC`)
 			if err != nil {
 				log.Fatal("error sending query", err)
@@ -173,15 +157,19 @@ func main() {
 			if err != nil {
 				log.Fatal("error collecting rows", err)
 			}
+			// adjust for binance specific perps listings
+			for i, symbol := range symbols {
+				if symbol == "LUNC" || symbol == "SHIB" || symbol == "PEPE" ||
+					symbol == "FLOKI" || symbol == "SATS" || symbol == "BONK" {
+					symbols[i] = "1000" + symbol
+				}
+			}
 		}
-		log.Println("Symbols at snapshot date: ", snapshot)
-		log.Println(symbols)
+		// #endregion
 
-		var queuedFundingRates []FundingRate
+		var queuedApiResp []data.FundingRateApiResp
+		countCoinsApiResp := 0
 		for _, symbol := range symbols {
-			// TODO
-			// Add check if there are already more coins in the slice than
-			// topN and break from this loop
 			url = fmt.Sprintf("https://fapi.binance.com/fapi/v1/fundingRate?symbol=%sUSDT&startTime=%v&endTime=%v", symbol, snapshot.UnixMilli(), snapshot.AddDate(0, 0, 7).UnixMilli()-1)
 			log.Println(url)
 			res, err := http.Get(url)
@@ -193,26 +181,28 @@ func main() {
 			if err != nil {
 				log.Fatal("io.ReadAll error | ", err)
 			}
-			var fundingRates []FundingRate
+			var fundingRates []data.FundingRateApiResp
 			json.Unmarshal(msg, &fundingRates)
 			log.Println("Number of funding rates: ", len(fundingRates))
 			if len(fundingRates) < 21 {
 				log.Println("Not enough funding rate history in this period. Skipping coin | ", symbol)
 			} else {
-				// TODO try adding snapshot date field to FundingRate struct
-				// test if it still unmarshals and i can add the snapshot date manually
-				// initialize a slice of queued FundingRate structs and append to them
-				// to be added to the table after all
-				queuedFundingRates = append(queuedFundingRates, fundingRates...)
+
+				countCoinsApiResp += 1
+				queuedApiResp = append(queuedApiResp, fundingRates...)
+			}
+			// Break loop if topN number of coins queued
+			if countCoinsApiResp >= topN {
+				break
 			}
 			time.Sleep(500 * time.Millisecond)
-			log.Println(queuedFundingRates)
 		}
+		// TODO
+		// loop for apiResp in queuedApiResp convert data types for Row struct
+		// and append to queuedRows. Add snapshot date, rank, marketcap w/e else
+		// other table. Ask GPT what some smart relations are
+		// still need to make the Row struct in data package and initialize queuedRows
 	}
-	// For tickers in slice: poll binance public api for fundingrate info
-	// ex. url https://fapi.binance.com/fapi/v1/fundingRate?symbol=XRPUSDT&startTime=1568102400000&endTime=1578297500000&limit=1000
-	// unmarshal api JSON to struct
-	// if binance public api doesn't have funding rate history for coin, try next ticker from marketcap_snapshots table
 	// insert data to "topN funding rates" table
 	// after "topN funding rates" table caught up to last entry of marketcap_snapshots
 	// create new "funding averages" table foreign key fundingTime
