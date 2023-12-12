@@ -18,10 +18,10 @@ import (
 )
 
 type FundingRate struct {
-	Symbol string  `json:"symbol"`
-	Time   int64   `json:"fundingTime"`
-	Rate   float64 `json:"fundingRate"`
-	Mark   float64 `json:"markPrice"`
+	Symbol string `json:"symbol"`
+	Time   int64  `json:"fundingTime"`
+	Rate   string `json:"fundingRate"`
+	Mark   string `json:"markPrice"`
 }
 
 var stableCoins = []string{
@@ -157,16 +157,26 @@ func main() {
 	// #endregion
 
 	for _, snapshot := range snapshots {
-		symbolRows, err := dbpool.Query(ctx, `SELECT symbol FROM `+snapshotsTableName+` WHERE snapshot_date = '`+snapshot.Format("2006-01-02")+`' AND symbol NOT IN (`+stableCoinsQuery+`) GROUP BY symbol, rank ORDER BY rank ASC`)
-		if err != nil {
-			log.Fatal("error sending query", err)
-		}
-		symbols, err := pgx.CollectRows(symbolRows, pgx.RowTo[string])
-		if err != nil {
-			log.Fatal("error collecting rows", err)
+		var symbols []string
+		// HARDCODED WORKAROUND
+		// Binance futures only had 3 markets in 2019, 80 markets in 2020.
+		// Hardcoding the symbols list speeds up the data collection by avoiding
+		// unneccessary API calls especially with higher values for topN const (20+)
+		if snapshot.Before(time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC)) {
+			symbols = []string{"BTC", "ETH", "BCH"}
+		} else {
+			symbolRows, err := dbpool.Query(ctx, `SELECT symbol FROM `+snapshotsTableName+` WHERE snapshot_date = '`+snapshot.Format("2006-01-02")+`' AND symbol NOT IN (`+stableCoinsQuery+`) GROUP BY symbol, rank ORDER BY rank ASC`)
+			if err != nil {
+				log.Fatal("error sending query", err)
+			}
+			symbols, err = pgx.CollectRows(symbolRows, pgx.RowTo[string])
+			if err != nil {
+				log.Fatal("error collecting rows", err)
+			}
 		}
 		log.Println("Symbols at snapshot date: ", snapshot)
 		log.Println(symbols)
+
 		var queuedFundingRates []FundingRate
 		for _, symbol := range symbols {
 			// TODO
