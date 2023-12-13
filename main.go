@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -71,13 +73,15 @@ func main() {
 	if !tableExists {
 		log.Printf("Table %s does not exist. Creating table...", fundingTableName)
 		queryCreateTable := `CREATE TABLE ` + fundingTableName + `(
-			snapshot_date DATE,
-			symbol TEXT,
 			funding_time BIGINT NOT NULL,
+			symbol TEXT,
 			funding_rate DECIMAL NOT NULL,
 			mark_price DECIMAL,
-			
-			PRIMARY KEY (symbol, funding_time)
+			snapshot_date DATE,
+			rank INTEGER,
+
+			PRIMARY KEY (symbol, funding_time),
+			FOREIGN KEY (snapshot_date, rank, symbol) REFERENCES ` + snapshotsTableName + `(snapshot_date, rank, symbol)
 			);
 			`
 		_, err = dbpool.Exec(ctx, queryCreateTable)
@@ -87,14 +91,15 @@ func main() {
 		date = dataStartDate
 	} else {
 		log.Printf("Table %s exists. Fetching last entry", fundingTableName)
-		queryLastDate := dbpool.QueryRow(ctx, `SELECT snapshot_date FROM `+fundingTableName+`ORDER BY snapshot_date DESC LIMIT 1`)
+		queryLastDate := dbpool.QueryRow(ctx, `SELECT snapshot_date FROM `+fundingTableName+` ORDER BY snapshot_date DESC LIMIT 1`)
 		queryLastDate.Scan(&date)
+		log.Println(date)
 		if date.Before(dataStartDate) { // fixes date when table exists but no entries
 			date = dataStartDate
 		} else {
 			date = date.AddDate(0, 0, 7) // if entries exists, sets date to next weekly snapshot
 		}
-		log.Println(date)
+		log.Println("Starting queries at date: ", date)
 	}
 	// #endregion
 
@@ -108,7 +113,6 @@ func main() {
 	if err != nil {
 		log.Fatal("error scanning rows | ", err)
 	}
-	log.Println(snapshots)
 	// #endregion
 
 	// #region Check for restricted location
@@ -131,6 +135,7 @@ func main() {
 	}
 	// #endregion
 
+	// Iterate over slice of snapshots that have yet to be added to database
 	for _, snapshot := range snapshots {
 		// #region Set slice of symbols to check for funding rate history on Binance
 		var symbols []string
@@ -167,11 +172,56 @@ func main() {
 		}
 		// #endregion
 
+		// #region Build slice of symbols with their ranks pulled from database
+		var symbolStructs []data.Symbol
+		for _, symbol := range symbols {
+			if strings.Contains(symbol, "1000") {
+				_, symbol, _ = strings.Cut(symbol, "1000")
+			}
+			var rank int64
+			rankRow := dbpool.QueryRow(ctx, `SELECT rank FROM `+snapshotsTableName+` WHERE snapshot_date = '`+snapshot.Format("2006-01-02")+`' AND symbol = '`+symbol+`'`)
+			err = rankRow.Scan(&rank)
+			if err != nil {
+				if strings.Contains(err.Error(), "no rows in result set") {
+					// Handle edge case where IOTA on binance is MIOTA on CMC
+					if symbol == "IOTA" {
+						symbol = "MIOTA"
+						rankRow := dbpool.QueryRow(ctx, `SELECT rank FROM `+snapshotsTableName+` WHERE snapshot_date = '`+snapshot.Format("2006-01-02")+`' AND symbol = '`+symbol+`'`)
+						err = rankRow.Scan(&rank)
+						if err != nil {
+							if strings.Contains(err.Error(), "no rows in result set") {
+								continue
+							} else {
+								log.Fatal("Error scanning row | ", err, symbol)
+							}
+						}
+					} else {
+						continue
+					}
+				} else {
+					log.Fatal("Error scanning row | ", err, symbol)
+				}
+			}
+			var newSymbol = data.Symbol{
+				Symbol: symbol,
+				Rank:   rank,
+			}
+			if newSymbol.Rank != 0 {
+				symbolStructs = append(symbolStructs, newSymbol)
+			}
+		}
+		sort.Slice(symbolStructs[:], func(i, j int) bool {
+			return symbolStructs[i].Rank < symbolStructs[j].Rank
+		}) // #endregion
+
+		// #region Iterate over symbols and poll binance fundingRate API. Add...
+		// funding history for coin if data is complete between this snapshot
+		// and the next until list is exhausted or topN coins with complete data
+		// is reached, whichever comes first
 		var queuedApiResp []data.FundingRateApiResp
 		countCoinsApiResp := 0
-		for _, symbol := range symbols {
-			url = fmt.Sprintf("https://fapi.binance.com/fapi/v1/fundingRate?symbol=%sUSDT&startTime=%v&endTime=%v", symbol, snapshot.UnixMilli(), snapshot.AddDate(0, 0, 7).UnixMilli()-1)
-			log.Println(url)
+		for _, symbol := range symbolStructs {
+			url = fmt.Sprintf("https://fapi.binance.com/fapi/v1/fundingRate?symbol=%sUSDT&startTime=%v&endTime=%v", symbol.Symbol, snapshot.UnixMilli(), snapshot.AddDate(0, 0, 7).UnixMilli()-1)
 			res, err := http.Get(url)
 			if err != nil {
 				log.Println("http.Get error | ", err)
@@ -183,11 +233,9 @@ func main() {
 			}
 			var fundingRates []data.FundingRateApiResp
 			json.Unmarshal(msg, &fundingRates)
-			log.Println("Number of funding rates: ", len(fundingRates))
 			if len(fundingRates) < 21 {
-				log.Println("Not enough funding rate history in this period. Skipping coin | ", symbol)
+				continue
 			} else {
-
 				countCoinsApiResp += 1
 				queuedApiResp = append(queuedApiResp, fundingRates...)
 			}
@@ -195,15 +243,92 @@ func main() {
 			if countCoinsApiResp >= topN {
 				break
 			}
-			time.Sleep(500 * time.Millisecond)
+			// binance funding rate history rate limit: 500/5min/IP
+			time.Sleep(600 * time.Millisecond)
+		} // #endregion
+
+		// #region Iterate over APIresps and build slice of rows to batch insert to db
+		var queuedRows []data.Row
+		for _, apiResp := range queuedApiResp {
+			rate, err := strconv.ParseFloat(apiResp.Rate, 64)
+			var mark sql.NullFloat64
+			if apiResp.Mark == "" {
+				mark.Float64 = 0.0
+				mark.Valid = false
+			} else {
+				mark.Float64, err = strconv.ParseFloat(apiResp.Mark, 64)
+				mark.Valid = true
+			}
+			if err != nil {
+				log.Fatal("ParseFloat error | ", err)
+			}
+
+			symbol, _, ok := strings.Cut(apiResp.Symbol, "USDT")
+			if !ok {
+				log.Fatal("Error cutting USDT from string | ", err)
+			}
+			if strings.Contains(symbol, "1000") {
+				_, symbol, _ = strings.Cut(symbol, "1000")
+			}
+
+			var rank int64
+			found := false
+			for _, symbolStruct := range symbolStructs {
+				if symbol == symbolStruct.Symbol {
+					rank = symbolStruct.Rank
+					found = true
+					break
+				}
+			}
+			if !found {
+				if symbol == "IOTA" {
+					symbol = "MIOTA"
+					for _, symbolStruct := range symbolStructs {
+						if symbol == symbolStruct.Symbol {
+							rank = symbolStruct.Rank
+							break
+						}
+					}
+				} else {
+					log.Fatal("Symbol not found in slice | ", symbol)
+				}
+			}
+			newRow := data.Row{
+				FundingTime:  apiResp.Time,
+				Symbol:       symbol,
+				FundingRate:  rate,
+				MarkPrice:    mark,
+				SnapshotDate: snapshot,
+				Rank:         rank,
+			}
+			queuedRows = append(queuedRows, newRow)
+		} // #endregion
+
+		// #region Batch insert queuedRows to database
+		queryInsertData := `
+			INSERT INTO ` + fundingTableName + `
+			(funding_time, symbol, funding_rate, mark_price, snapshot_date, rank)
+			VALUES ($1, $2, $3, $4, $5, $6);
+			`
+		batch := &pgx.Batch{}
+		for _, row := range queuedRows {
+			batch.Queue(queryInsertData, row.FundingTime, row.Symbol, row.FundingRate, row.MarkPrice, row.SnapshotDate, row.Rank)
 		}
-		// TODO
-		// loop for apiResp in queuedApiResp convert data types for Row struct
-		// and append to queuedRows. Add snapshot date, rank, marketcap w/e else
-		// other table. Ask GPT what some smart relations are
-		// still need to make the Row struct in data package and initialize queuedRows
+		br := dbpool.SendBatch(ctx, batch)
+		_, err := br.Exec()
+		if err != nil {
+			log.Fatal("Unable to execute statement in batch queue | ", err)
+		}
+		log.Printf("Successfully inserted %d rows to table %s at snapshot_date %s", len(queuedRows), fundingTableName, snapshot)
+
+		err = br.Close()
+		if err != nil {
+			log.Fatal("Error closing batch | ", err)
+
+		} // #endregion
 	}
-	// insert data to "topN funding rates" table
+	log.Printf("Insertions to table %s have caught up to entries in table %s", fundingTableName, snapshotsTableName)
+
 	// after "topN funding rates" table caught up to last entry of marketcap_snapshots
 	// create new "funding averages" table foreign key fundingTime
 	// calculate and insert average and median funding rates for fundingTime

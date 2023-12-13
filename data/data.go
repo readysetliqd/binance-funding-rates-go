@@ -1,5 +1,24 @@
 package data
 
+import (
+	"database/sql"
+	"time"
+)
+
+type Symbol struct {
+	Symbol string
+	Rank   int64
+}
+
+type Row struct {
+	FundingTime  int64
+	Symbol       string
+	FundingRate  float64
+	MarkPrice    sql.NullFloat64
+	SnapshotDate time.Time
+	Rank         int64
+}
+
 type FundingRateApiResp struct {
 	Symbol string `json:"symbol"`
 	Time   int64  `json:"fundingTime"`
