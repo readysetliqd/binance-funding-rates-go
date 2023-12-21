@@ -33,6 +33,8 @@ const topN = 100
 // Binance futures went live Sep. 13, 2019. First CoinMarketCap snapshot entry after that was the 15th
 var dataStartDate = time.Date(2019, 9, 15, 0, 0, 0, 0, time.UTC)
 
+// Table name in database that will be created by this program and filled with
+// historical funding rate data
 var fundingTableName = "top" + strconv.Itoa(topN) + "_historical_funding_rates"
 
 func main() {
@@ -111,7 +113,7 @@ func main() {
 	}
 	snapshots, err = pgx.CollectRows(snapshotRows, pgx.RowTo[time.Time])
 	if err != nil {
-		log.Fatal("error scanning rows | ", err)
+		log.Fatal("error collecting rows | ", err)
 	}
 	// #endregion
 
@@ -144,15 +146,18 @@ func main() {
 		// Hardcoding the symbols list speeds up the data collection by avoiding
 		// unneccessary API calls especially with higher values for topN const (20+)
 		// Symbols lists made by hand reading through Binance announcements
-		if snapshot.Before(time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC)) {
+		switch {
+		case snapshot.Before(time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC)):
 			symbols = data.SymbolsBefore2020
-		} else if snapshot.Before(time.Date(2021, time.January, 1, 0, 0, 0, 0, time.UTC)) {
+		case snapshot.Before(time.Date(2021, time.January, 1, 0, 0, 0, 0, time.UTC)):
 			symbols = data.SymbolsBefore2021
-		} else if snapshot.Before(time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)) {
+		case snapshot.Before(time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)):
 			symbols = data.SymbolsBefore2022
-		} else if snapshot.Before(time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC)) {
+		case snapshot.Before(time.Date(2023, time.January, 1, 0, 0, 0, 0, time.UTC)):
 			symbols = data.SymbolsBefore2023
-		} else {
+		case snapshot.Before(time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC)):
+			symbols = data.SymbolsBefore2024
+		default:
 			var stableCoinsQuery = strings.Join(data.StableCoins, ",")
 			symbolRows, err := dbpool.Query(ctx, `SELECT symbol FROM `+snapshotsTableName+` WHERE snapshot_date = '`+snapshot.Format("2006-01-02")+`' AND symbol NOT IN (`+stableCoinsQuery+`) GROUP BY symbol, rank ORDER BY rank ASC`)
 			if err != nil {
@@ -162,13 +167,22 @@ func main() {
 			if err != nil {
 				log.Fatal("error collecting rows", err)
 			}
-			// adjust for binance specific perps listings
+
+			// adjust for binance specific perps listings and remove CMC duplicates
+			seen := make(map[string]bool)
+			symbolsNoDuplicates := []string{}
 			for i, symbol := range symbols {
-				if symbol == "LUNC" || symbol == "SHIB" || symbol == "PEPE" ||
-					symbol == "FLOKI" || symbol == "SATS" || symbol == "BONK" {
-					symbols[i] = "1000" + symbol
+				for _, thousandSymbol := range data.ThousandSymbols {
+					if symbol == thousandSymbol {
+						symbols[i] = "1000" + symbol
+					}
+				}
+				if _, ok := seen[symbols[i]]; !ok {
+					seen[symbols[i]] = true
+					symbolsNoDuplicates = append(symbolsNoDuplicates, symbols[i])
 				}
 			}
+			symbols = symbolsNoDuplicates
 		}
 		// #endregion
 
@@ -328,6 +342,71 @@ func main() {
 		} // #endregion
 	}
 	log.Printf("Insertions to table %s have caught up to entries in table %s", fundingTableName, snapshotsTableName)
+
+	// #region Build list of snapshot_dates with incomplete mark price data
+	snapshotRows, err = dbpool.Query(ctx, `SELECT snapshot_date FROM `+fundingTableName+` WHERE mark_price IS NULL GROUP BY snapshot_date ORDER BY snapshot_date ASC`)
+	if err != nil {
+		log.Fatal("error querying rows | ", err)
+	}
+	snapshots, err = pgx.CollectRows(snapshotRows, pgx.RowTo[time.Time])
+	if err != nil {
+		log.Fatal("error collecting rows | ", err)
+	} // #endregion
+
+	// Iterate over snapshots and find symbols without mark_price data
+	for _, snapshot := range snapshots {
+		// #region Build list of symbols without mark_price data at snapshot_date
+		var symbols []string
+		symbolRows, err := dbpool.Query(ctx, `SELECT symbol FROM `+fundingTableName+`WHERE snapshot_date = `+snapshot.Format("2006-01-02")+` AND mark_price IS NULL GROUP BY symbol`)
+		if err != nil {
+			log.Fatal("error querying rows | ", err)
+		}
+		symbols, err = pgx.CollectRows(symbolRows, pgx.RowTo[string])
+		if err != nil {
+			log.Fatal("error collecting rows | ", err)
+		} // #endregion
+
+		// Iterate over list of symbols and fill in mark_price data from api
+		for _, symbol := range symbols {
+			// #region build api url and poll it with http.Get
+			if symbol == "MIOTA" {
+				symbol = "IOTA"
+			}
+			symbol = symbol + "USDT"
+			url = fmt.Sprintf("https://fapi.binance.com/fapi/v1/markPriceKlines?symbol=%s&interval=8h&limit=21&startTime=%v&endTime=%v", symbol, snapshot.UnixMilli(), snapshot.AddDate(0, 0, 7).UnixMilli()-1)
+			res, err = http.Get(url)
+			if err != nil {
+				log.Fatal("http.Get error | ", err)
+			}
+			defer res.Body.Close()
+			msg, err = io.ReadAll(res.Body)
+			if err != nil {
+				log.Fatal("io.ReadAll error | ", err)
+			} // #endregion
+
+			// #region Unmarshal api response to slice of interface slices
+			var respInfc [][]interface{}
+			err = json.Unmarshal(msg, &respInfc)
+			if err != nil {
+				log.Fatal("json.Unmarshal error | ", err)
+			}
+			if len(respInfc) < 21 {
+				log.Println("Skipping entry. Not enough data for symbol at snapshot date | ", symbol, snapshot)
+				continue
+			} // #endregion
+
+			// Iterate over api response slice and build slice to queue data for batch insert
+			for _, markResp := range respInfc {
+				log.Printf("symbol: %s snapshot_date: %s funding_time: %v mark_price: %s", symbol, snapshot, markResp[0].(int64), markResp[1].(string))
+			}
+
+			// [0] is funding_time, [1] is mark_price (open price)
+			// add to batch insert slice where snapshot and symbol = snapshot and symbol
+
+			// Sleep to prevent rate limiting
+			time.Sleep(time.Millisecond * 25) // from binance api: weight = 1 for limit [1,100]. 2400 weight/min = 40 queries/sec
+		}
+	}
 
 	// after "topN funding rates" table caught up to last entry of marketcap_snapshots
 	// create new "funding averages" table foreign key fundingTime
