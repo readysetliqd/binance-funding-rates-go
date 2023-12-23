@@ -19,6 +19,12 @@ type Row struct {
 	Rank         int64
 }
 
+type MarkApiResp struct {
+	Symbol string
+	Time   int64
+	Mark   float64
+}
+
 type FundingRateApiResp struct {
 	Symbol string `json:"symbol"`
 	Time   int64  `json:"fundingTime"`

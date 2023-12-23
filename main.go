@@ -161,11 +161,11 @@ func main() {
 			var stableCoinsQuery = strings.Join(data.StableCoins, ",")
 			symbolRows, err := dbpool.Query(ctx, `SELECT symbol FROM `+snapshotsTableName+` WHERE snapshot_date = '`+snapshot.Format("2006-01-02")+`' AND symbol NOT IN (`+stableCoinsQuery+`) GROUP BY symbol, rank ORDER BY rank ASC`)
 			if err != nil {
-				log.Fatal("error sending query", err)
+				log.Fatal("error sending query | ", err)
 			}
 			symbols, err = pgx.CollectRows(symbolRows, pgx.RowTo[string])
 			if err != nil {
-				log.Fatal("error collecting rows", err)
+				log.Fatal("error collecting rows | ", err)
 			}
 
 			// adjust for binance specific perps listings and remove CMC duplicates
@@ -279,7 +279,7 @@ func main() {
 
 			symbol, _, ok := strings.Cut(apiResp.Symbol, "USDT")
 			if !ok {
-				log.Fatal("Error cutting USDT from string | ", err)
+				log.Fatal("Error cutting USDT from string | ", symbol)
 			}
 			if strings.Contains(symbol, "1000") {
 				_, symbol, _ = strings.Cut(symbol, "1000")
@@ -338,7 +338,6 @@ func main() {
 		err = br.Close()
 		if err != nil {
 			log.Fatal("Error closing batch | ", err)
-
 		} // #endregion
 	}
 	log.Printf("Insertions to table %s have caught up to entries in table %s", fundingTableName, snapshotsTableName)
@@ -357,7 +356,7 @@ func main() {
 	for _, snapshot := range snapshots {
 		// #region Build list of symbols without mark_price data at snapshot_date
 		var symbols []string
-		symbolRows, err := dbpool.Query(ctx, `SELECT symbol FROM `+fundingTableName+`WHERE snapshot_date = `+snapshot.Format("2006-01-02")+` AND mark_price IS NULL GROUP BY symbol`)
+		symbolRows, err := dbpool.Query(ctx, `SELECT symbol FROM `+fundingTableName+` WHERE snapshot_date = '`+snapshot.Format("2006-01-02")+`' AND mark_price IS NULL GROUP BY symbol`)
 		if err != nil {
 			log.Fatal("error querying rows | ", err)
 		}
@@ -367,6 +366,7 @@ func main() {
 		} // #endregion
 
 		// Iterate over list of symbols and fill in mark_price data from api
+		var queuedMarks []data.MarkApiResp
 		for _, symbol := range symbols {
 			// #region build api url and poll it with http.Get
 			if symbol == "MIOTA" {
@@ -397,23 +397,50 @@ func main() {
 
 			// Iterate over api response slice and build slice to queue data for batch insert
 			for _, markResp := range respInfc {
-				log.Printf("symbol: %s snapshot_date: %s funding_time: %v mark_price: %s", symbol, snapshot, markResp[0].(int64), markResp[1].(string))
+				// #region Convert symbol to db format and add mark data to slice of queuedMarks
+				symbol, _, ok := strings.Cut(symbol, "USDT")
+				if !ok {
+					log.Fatal("Error cutting USDT from string, USDT not found | ", symbol)
+				}
+				if strings.Contains(symbol, "1000") {
+					_, symbol, _ = strings.Cut(symbol, "1000")
+				}
+				mark, err := strconv.ParseFloat(markResp[1].(string), 64)
+				if err != nil {
+					log.Fatal("error parsing float | ", err)
+				}
+				newMark := data.MarkApiResp{Symbol: symbol, Time: int64(markResp[0].(float64)), Mark: mark}
+				queuedMarks = append(queuedMarks, newMark) // #endregion
 			}
-
-			// [0] is funding_time, [1] is mark_price (open price)
-			// add to batch insert slice where snapshot and symbol = snapshot and symbol
-
 			// Sleep to prevent rate limiting
 			time.Sleep(time.Millisecond * 25) // from binance api: weight = 1 for limit [1,100]. 2400 weight/min = 40 queries/sec
 		}
+		// #region Iterate over slice of queuedMarks and batch update database
+		if len(queuedMarks) > 0 {
+			// note dividing funding time by 100 for comparison because some data
+			// from binance can be several milliseconds later than the 8hr interval
+			queryUpdateMark := `
+				UPDATE ` + fundingTableName + ` 
+				SET mark_price = $1
+				WHERE funding_time / 100 = $2
+				AND symbol = $3;
+			`
+			batch := &pgx.Batch{}
+			for _, queuedMark := range queuedMarks {
+				mark := fmt.Sprintf("%f", queuedMark.Mark)
+				batch.Queue(queryUpdateMark, mark, queuedMark.Time/100, queuedMark.Symbol)
+			}
+			br := dbpool.SendBatch(ctx, batch)
+			_, err = br.Exec()
+			if err != nil {
+				log.Fatal("error sending batch | ", err)
+			}
+			log.Printf("Batch updated mark_price for %v rows on %s table at snapshot date %s", len(queuedMarks), fundingTableName, snapshot)
+			err = br.Close()
+			if err != nil {
+				log.Fatal("error closing batch | ", err)
+			} // #endregion
+		}
 	}
-
-	// after "topN funding rates" table caught up to last entry of marketcap_snapshots
-	// create new "funding averages" table foreign key fundingTime
-	// calculate and insert average and median funding rates for fundingTime
-	// calculate marketcap weighted ex-BTC average and median funding rates
-	// calculate rolling 1 month 3 month 1 year funding rate confidence interval
-	// insert all data to new "funding averages" table
-	// after "funding averages" table caught up to last entry
-	// query to find all fundingTime where average funding rates are at extremes
+	log.Println("Mark price updates finished")
 }
