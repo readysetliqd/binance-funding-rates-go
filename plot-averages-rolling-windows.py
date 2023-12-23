@@ -188,7 +188,8 @@ extreme_conditions_pairs = [('avg_quantile_high', 'avg_quantile_low'), ('mad_ext
 
 # Loop over the periods to perform t-statistic tests
 with open('stats_output.txt', 'w') as f:
-    f.write('Price returns ex funding rates\n******************************\n')
+    f.write("\n")
+    f.write('******************************\nPrice returns ex funding rates\n******************************\n')
     for period in periods:
         # Loop over the extreme conditions
         for condition in extreme_conditions:
@@ -204,6 +205,7 @@ with open('stats_output.txt', 'w') as f:
             f.write(f'p-value: {p_value}\n')
 
     # Loop over the periods to perform correlation tests
+    f.write("\n")
     for period in periods:
         f.write(f'Correlation with forward {period} period return:\n')
         # Loop over the extreme conditions
@@ -213,6 +215,7 @@ with open('stats_output.txt', 'w') as f:
             f.write(f'{condition}: {correlation}\n')
 
     # Loop over the periods to perform regression analysis
+    f.write("\n")
     for period in periods:
         f.write(f'Regression analysis for forward {period} period return:\n')
         # Loop over the extreme conditions
@@ -234,6 +237,7 @@ with open('stats_output.txt', 'w') as f:
     confidence_level = 0.95
 
     # Loop over the periods to perform confidence intervals tests
+    f.write("\n")
     for period in periods:
         f.write(f'Confidence intervals for forward {period} period return:\n')
         # Loop over the extreme conditions
@@ -248,6 +252,7 @@ with open('stats_output.txt', 'w') as f:
             f.write(f'{condition}: {ci}\n')
             
     # Loop over the periods
+    f.write("\n")
     for period in periods:
         f.write(f'Effect size for forward {period} period return:\n')
         # Loop over the pairs of extreme conditions
@@ -268,7 +273,8 @@ with open('stats_output.txt', 'w') as f:
             
             f.write(f"Cohen's d for {condition_true} vs {condition_false}: {cohens_d}\n")
         
-    f.write('Total returns including funding rates\n******************************\n')
+    f.write("\n")
+    f.write('******************************\nTotal returns including funding rates\n******************************\n')
     for period in periods:
         # Loop over the extreme conditions
         for condition in extreme_conditions:
@@ -284,6 +290,7 @@ with open('stats_output.txt', 'w') as f:
             f.write(f'p-value: {p_value}\n')
 
     # Loop over the periods to perform correlation tests
+    f.write("\n")
     for period in periods:
         f.write(f'Correlation with forward {period} period return:\n')
         # Loop over the extreme conditions
@@ -293,6 +300,7 @@ with open('stats_output.txt', 'w') as f:
             f.write(f'{condition}: {correlation}\n')
 
     # Loop over the periods to perform regression analysis
+    f.write("\n")
     for period in periods:
         f.write(f'Regression analysis for forward {period} period return:\n')
         # Loop over the extreme conditions
@@ -314,6 +322,7 @@ with open('stats_output.txt', 'w') as f:
     confidence_level = 0.95
 
     # Loop over the periods to perform confidence intervals tests
+    f.write("\n")
     for period in periods:
         f.write(f'Confidence intervals for forward {period} period return:\n')
         # Loop over the extreme conditions
@@ -328,6 +337,7 @@ with open('stats_output.txt', 'w') as f:
             f.write(f'{condition}: {ci}\n')
             
     # Loop over the periods
+    f.write("\n")
     for period in periods:
         f.write(f'Effect size for forward {period} period return:\n')
         # Loop over the pairs of extreme conditions

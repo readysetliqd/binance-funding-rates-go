@@ -20,6 +20,7 @@ import (
 	"github.com/readysetliqd/binance-funding-rates-go/data"
 )
 
+// #region Configs
 // Table name of already existing table with weekly snapshots of all cryptocurrencies ranked
 // by marketca. Table built from github.com/readysetliqd/cryto-historical-marketcas-scraper-go
 const snapshotsTableName = "marketcap_snapshots"
@@ -36,6 +37,8 @@ var dataStartDate = time.Date(2019, 9, 15, 0, 0, 0, 0, time.UTC)
 // Table name in database that will be created by this program and filled with
 // historical funding rate data
 var fundingTableName = "top" + strconv.Itoa(topN) + "_historical_funding_rates"
+
+// #endregion
 
 func main() {
 	// #region Load Environment variables
