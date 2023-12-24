@@ -159,6 +159,11 @@ results['avg_quantile_low'] = (results['avg_funding_rate'] < low_threshold)
 results['mad_extreme_high'] = (results['mad_score'] > 3) & (results['avg_funding_rate'] > results['q2_funding_rate'])
 results['mad_extreme_low'] = (results['mad_score'] > 3) & (results['avg_funding_rate'] < results['q2_funding_rate'])
 
+results['mad_high_to_neutral'] = (results['mad_extreme_high'] == False) & (results['mad_extreme_high'].shift() == True)
+results['mad_low_to_neutral'] = (results['mad_extreme_low'] == False) & (results['mad_extreme_low'].shift() == True)
+results['mad_neutral_to_high'] = (results['mad_extreme_high'] == True) & (results['mad_extreme_high'].shift() == False)
+results['mad_neutral_to_low'] = (results['mad_extreme_low'] == True) & (results['mad_extreme_low'].shift() == False)
+
 # Create subplots
 fig, axs = plt.subplots(3)
 
@@ -183,6 +188,8 @@ plt.tight_layout()
 plt.show()
     
 # List of extreme conditions
+extreme_changed_conditions = ['mad_high_to_neutral', 'mad_low_to_neutral', 'mad_neutral_to_high', 'mad_neutral_to_low']
+extreme_changed_conditions_pairs = [('mad_high_to_neutral','mad_neutral_to_high'), ('mad_low_to_neutral','mad_neutral_to_low')]
 extreme_conditions = ['avg_quantile_high', 'avg_quantile_low', 'mad_extreme_high', 'mad_extreme_low']
 extreme_conditions_pairs = [('avg_quantile_high', 'avg_quantile_low'), ('mad_extreme_high', 'mad_extreme_low')]
 
@@ -192,7 +199,7 @@ with open('stats_output.txt', 'w') as f:
     f.write('******************************\nPrice returns ex funding rates\n******************************\n')
     for period in periods:
         # Loop over the extreme conditions
-        for condition in extreme_conditions:
+        for condition in extreme_changed_conditions:
             # Get the forward returns for each group
             condition_true = results[results[condition] == True][f'forward_{period}_period_return']
             condition_false = results[results[condition] == False][f'forward_{period}_period_return']
@@ -209,7 +216,7 @@ with open('stats_output.txt', 'w') as f:
     for period in periods:
         f.write(f'Correlation with forward {period} period return:\n')
         # Loop over the extreme conditions
-        for condition in extreme_conditions:
+        for condition in extreme_changed_conditions:
             # Calculate the correlation
             correlation = results[condition].corr(results[f'forward_{period}_period_return'])
             f.write(f'{condition}: {correlation}\n')
@@ -219,7 +226,7 @@ with open('stats_output.txt', 'w') as f:
     for period in periods:
         f.write(f'Regression analysis for forward {period} period return:\n')
         # Loop over the extreme conditions
-        for condition in extreme_conditions:
+        for condition in extreme_changed_conditions:
             # Define the dependent variable (forward return)
             Y = results[f'forward_{period}_period_return']
             # Define the independent variable (extreme condition)
@@ -241,7 +248,7 @@ with open('stats_output.txt', 'w') as f:
     for period in periods:
         f.write(f'Confidence intervals for forward {period} period return:\n')
         # Loop over the extreme conditions
-        for condition in extreme_conditions:
+        for condition in extreme_changed_conditions:
             # Get the forward returns for the condition
             returns = results[results[condition] == True][f'forward_{period}_period_return']
             # Calculate the mean and standard error
@@ -277,7 +284,7 @@ with open('stats_output.txt', 'w') as f:
     f.write('******************************\nTotal returns including funding rates\n******************************\n')
     for period in periods:
         # Loop over the extreme conditions
-        for condition in extreme_conditions:
+        for condition in extreme_changed_conditions:
             # Get the forward returns for each group
             condition_true = results[results[condition] == True][f'forward_{period}_total_return']
             condition_false = results[results[condition] == False][f'forward_{period}_total_return']
@@ -294,7 +301,7 @@ with open('stats_output.txt', 'w') as f:
     for period in periods:
         f.write(f'Correlation with forward {period} period return:\n')
         # Loop over the extreme conditions
-        for condition in extreme_conditions:
+        for condition in extreme_changed_conditions:
             # Calculate the correlation
             correlation = results[condition].corr(results[f'forward_{period}_total_return'])
             f.write(f'{condition}: {correlation}\n')
@@ -304,7 +311,7 @@ with open('stats_output.txt', 'w') as f:
     for period in periods:
         f.write(f'Regression analysis for forward {period} period return:\n')
         # Loop over the extreme conditions
-        for condition in extreme_conditions:
+        for condition in extreme_changed_conditions:
             # Define the dependent variable (forward return)
             Y = results[f'forward_{period}_total_return']
             # Define the independent variable (extreme condition)
@@ -326,7 +333,7 @@ with open('stats_output.txt', 'w') as f:
     for period in periods:
         f.write(f'Confidence intervals for forward {period} period return:\n')
         # Loop over the extreme conditions
-        for condition in extreme_conditions:
+        for condition in extreme_changed_conditions:
             # Get the forward returns for the condition
             returns = results[results[condition] == True][f'forward_{period}_total_return']
             # Calculate the mean and standard error

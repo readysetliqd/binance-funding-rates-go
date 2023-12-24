@@ -27,7 +27,7 @@ const snapshotsTableName = "marketcap_snapshots"
 
 // Table name in database will be affected by this const. Number of cryptos to
 // analyze from every snapshot ie. top 10 by market cap
-const topN = 100
+const topN = 10
 
 // First snapshot entry from CoinMarketCap is April 28th, 2013
 // var dataStartDate = time.Date(2013, 4, 28, 0, 0, 0, 0, time.UTC)

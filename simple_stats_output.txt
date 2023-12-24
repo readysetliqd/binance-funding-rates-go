@@ -1,0 +1,770 @@
+
+******************************
+Price returns ex funding rates
+******************************
+T-test for forward 1 period return when extreme_high_0.05 is True:
+t-statistic: 1.5438262446687816
+p-value: 0.1227043444947298
+T-test for forward 1 period return when extreme_high_0.10 is True:
+t-statistic: 3.9501901358615203
+p-value: 7.934587260727662e-05
+T-test for forward 1 period return when extreme_low_0.05 is True:
+t-statistic: -1.1194645766265439
+p-value: 0.2630047991574584
+T-test for forward 1 period return when extreme_low_0.10 is True:
+t-statistic: -1.7224484396510413
+p-value: 0.08506053981564313
+T-test for forward 3 period return when extreme_high_0.05 is True:
+t-statistic: 4.655332649822409
+p-value: 3.3324828630403726e-06
+T-test for forward 3 period return when extreme_high_0.10 is True:
+t-statistic: 4.84017470444753
+p-value: 1.3429473020591843e-06
+T-test for forward 3 period return when extreme_low_0.05 is True:
+t-statistic: 3.5183085965882044
+p-value: 0.00043882094445597873
+T-test for forward 3 period return when extreme_low_0.10 is True:
+t-statistic: 3.7382879420074464
+p-value: 0.0001876969385031893
+T-test for forward 9 period return when extreme_high_0.05 is True:
+t-statistic: 8.149515504676176
+p-value: 4.751115830819901e-16
+T-test for forward 9 period return when extreme_high_0.10 is True:
+t-statistic: 8.489331958052386
+p-value: 2.8286130300849886e-17
+T-test for forward 9 period return when extreme_low_0.05 is True:
+t-statistic: -0.2265927586489509
+p-value: 0.8207512420186114
+T-test for forward 9 period return when extreme_low_0.10 is True:
+t-statistic: -1.167141513726866
+p-value: 0.24321823068144746
+T-test for forward 21 period return when extreme_high_0.05 is True:
+t-statistic: 13.06720797042912
+p-value: 2.714997912137351e-38
+T-test for forward 21 period return when extreme_high_0.10 is True:
+t-statistic: 12.996185746280178
+p-value: 6.647201435294608e-38
+T-test for forward 21 period return when extreme_low_0.05 is True:
+t-statistic: 0.5225281666283947
+p-value: 0.6013296787934251
+T-test for forward 21 period return when extreme_low_0.10 is True:
+t-statistic: 0.6075116543604152
+p-value: 0.5435436329159518
+T-test for forward 42 period return when extreme_high_0.05 is True:
+t-statistic: 13.928937579434702
+p-value: 3.649993530434302e-43
+T-test for forward 42 period return when extreme_high_0.10 is True:
+t-statistic: 11.800573658696804
+p-value: 1.1933549045257614e-31
+T-test for forward 42 period return when extreme_low_0.05 is True:
+t-statistic: -0.17706759184652926
+p-value: 0.8594636740681085
+T-test for forward 42 period return when extreme_low_0.10 is True:
+t-statistic: 0.3760415637437247
+p-value: 0.706904629834349
+T-test for forward 84 period return when extreme_high_0.05 is True:
+t-statistic: 14.871781499974126
+p-value: 8.1578916291175e-49
+T-test for forward 84 period return when extreme_high_0.10 is True:
+t-statistic: 13.701448574808987
+p-value: 7.511215579645643e-42
+T-test for forward 84 period return when extreme_low_0.05 is True:
+t-statistic: -0.6194957663770343
+p-value: 0.5356227775103748
+T-test for forward 84 period return when extreme_low_0.10 is True:
+t-statistic: -0.4553375192249386
+p-value: 0.6488895297543704
+
+Correlation with forward 1 period return:
+extreme_high_0.05: 0.023588750940356625
+extreme_high_0.10: 0.06026363664077545
+extreme_low_0.05: -0.017107012958493147
+extreme_low_0.10: -0.026316200148418987
+Correlation with forward 3 period return:
+extreme_high_0.05: 0.07097110921079253
+extreme_high_0.10: 0.07377400307700538
+extreme_low_0.05: 0.05369506112875033
+extreme_low_0.10: 0.057041697353147396
+Correlation with forward 9 period return:
+extreme_high_0.05: 0.12359937094478962
+extreme_high_0.10: 0.12866954127804667
+extreme_low_0.05: -0.003463146059704974
+extreme_low_0.10: -0.017835357427603702
+Correlation with forward 21 period return:
+extreme_high_0.05: 0.19584718138575344
+extreme_high_0.10: 0.194823231621115
+extreme_low_0.05: 0.007985888515186003
+extreme_low_0.10: 0.009284601751800967
+Correlation with forward 42 period return:
+extreme_high_0.05: 0.2082191790339489
+extreme_high_0.10: 0.17749230517642475
+extreme_low_0.05: -0.0027062310747714
+extreme_low_0.10: 0.0057471967297645634
+Correlation with forward 84 period return:
+extreme_high_0.05: 0.22164199812747584
+extreme_high_0.10: 0.20496251535756588
+extreme_low_0.05: -0.009467738699486788
+extreme_low_0.10: -0.00695905560749172
+
+Regression analysis for forward 1 period return:
+                               OLS Regression Results                              
+===================================================================================
+Dep. Variable:     forward_1_period_return   R-squared:                       0.001
+Model:                                 OLS   Adj. R-squared:                  0.000
+Method:                      Least Squares   F-statistic:                     2.383
+Date:                     Sun, 24 Dec 2023   Prob (F-statistic):              0.123
+Time:                             10:17:27   Log-Likelihood:                 9571.6
+No. Observations:                     4283   AIC:                        -1.914e+04
+Df Residuals:                         4281   BIC:                        -1.913e+04
+Df Model:                                1                                         
+Covariance Type:                 nonrobust                                         
+=====================================================================================
+                        coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                 0.0008      0.000      2.016      0.044     2.3e-05       0.002
+extreme_high_0.05     0.0022      0.001      1.544      0.123      -0.001       0.005
+==============================================================================
+Omnibus:                     1251.751   Durbin-Watson:                   2.005
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):            68957.613
+Skew:                           0.571   Prob(JB):                         0.00
+Kurtosis:                      22.624   Cond. No.                         3.56
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                              
+===================================================================================
+Dep. Variable:     forward_1_period_return   R-squared:                       0.004
+Model:                                 OLS   Adj. R-squared:                  0.003
+Method:                      Least Squares   F-statistic:                     15.60
+Date:                     Sun, 24 Dec 2023   Prob (F-statistic):           7.93e-05
+Time:                             10:17:27   Log-Likelihood:                 9578.2
+No. Observations:                     4283   AIC:                        -1.915e+04
+Df Residuals:                         4281   BIC:                        -1.914e+04
+Df Model:                                1                                         
+Covariance Type:                 nonrobust                                         
+=====================================================================================
+                        coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                 0.0007      0.000      1.866      0.062   -3.79e-05       0.002
+extreme_high_0.10     0.0091      0.002      3.950      0.000       0.005       0.014
+==============================================================================
+Omnibus:                     1206.661   Durbin-Watson:                   2.012
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):            63509.768
+Skew:                           0.526   Prob(JB):                         0.00
+Kurtosis:                      21.835   Cond. No.                         5.83
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                              
+===================================================================================
+Dep. Variable:     forward_1_period_return   R-squared:                       0.000
+Model:                                 OLS   Adj. R-squared:                  0.000
+Method:                      Least Squares   F-statistic:                     1.253
+Date:                     Sun, 24 Dec 2023   Prob (F-statistic):              0.263
+Time:                             10:17:27   Log-Likelihood:                 9571.0
+No. Observations:                     4283   AIC:                        -1.914e+04
+Df Residuals:                         4281   BIC:                        -1.913e+04
+Df Model:                                1                                         
+Covariance Type:                 nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+const                0.0010      0.000      2.630      0.009       0.000       0.002
+extreme_low_0.05    -0.0118      0.011     -1.119      0.263      -0.033       0.009
+==============================================================================
+Omnibus:                     1275.159   Durbin-Watson:                   1.999
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):            70535.314
+Skew:                           0.600   Prob(JB):                         0.00
+Kurtosis:                      22.845   Cond. No.                         26.7
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                              
+===================================================================================
+Dep. Variable:     forward_1_period_return   R-squared:                       0.001
+Model:                                 OLS   Adj. R-squared:                  0.000
+Method:                      Least Squares   F-statistic:                     2.967
+Date:                     Sun, 24 Dec 2023   Prob (F-statistic):             0.0851
+Time:                             10:17:27   Log-Likelihood:                 9571.8
+No. Observations:                     4283   AIC:                        -1.914e+04
+Df Residuals:                         4281   BIC:                        -1.913e+04
+Df Model:                                1                                         
+Covariance Type:                 nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+const                0.0010      0.000      2.635      0.008       0.000       0.002
+extreme_low_0.10    -0.0258      0.015     -1.722      0.085      -0.055       0.004
+==============================================================================
+Omnibus:                     1274.390   Durbin-Watson:                   1.995
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):            70551.060
+Skew:                           0.599   Prob(JB):                         0.00
+Kurtosis:                      22.847   Cond. No.                         37.8
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+Regression analysis for forward 3 period return:
+                               OLS Regression Results                              
+===================================================================================
+Dep. Variable:     forward_3_period_return   R-squared:                       0.005
+Model:                                 OLS   Adj. R-squared:                  0.005
+Method:                      Least Squares   F-statistic:                     21.67
+Date:                     Sun, 24 Dec 2023   Prob (F-statistic):           3.33e-06
+Time:                             10:17:27   Log-Likelihood:                 7260.9
+No. Observations:                     4283   AIC:                        -1.452e+04
+Df Residuals:                         4281   BIC:                        -1.450e+04
+Df Model:                                1                                         
+Covariance Type:                 nonrobust                                         
+=====================================================================================
+                        coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                 0.0021      0.001      2.934      0.003       0.001       0.003
+extreme_high_0.05     0.0112      0.002      4.655      0.000       0.006       0.016
+==============================================================================
+Omnibus:                      696.789   Durbin-Watson:                   0.739
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):            11123.774
+Skew:                          -0.244   Prob(JB):                         0.00
+Kurtosis:                      10.880   Cond. No.                         3.56
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                              
+===================================================================================
+Dep. Variable:     forward_3_period_return   R-squared:                       0.005
+Model:                                 OLS   Adj. R-squared:                  0.005
+Method:                      Least Squares   F-statistic:                     23.43
+Date:                     Sun, 24 Dec 2023   Prob (F-statistic):           1.34e-06
+Time:                             10:17:27   Log-Likelihood:                 7261.7
+No. Observations:                     4283   AIC:                        -1.452e+04
+Df Residuals:                         4281   BIC:                        -1.451e+04
+Df Model:                                1                                         
+Covariance Type:                 nonrobust                                         
+=====================================================================================
+                        coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                 0.0025      0.001      3.605      0.000       0.001       0.004
+extreme_high_0.10     0.0191      0.004      4.840      0.000       0.011       0.027
+==============================================================================
+Omnibus:                      693.996   Durbin-Watson:                   0.740
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):            10776.498
+Skew:                          -0.255   Prob(JB):                         0.00
+Kurtosis:                      10.754   Cond. No.                         5.83
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                              
+===================================================================================
+Dep. Variable:     forward_3_period_return   R-squared:                       0.003
+Model:                                 OLS   Adj. R-squared:                  0.003
+Method:                      Least Squares   F-statistic:                     12.38
+Date:                     Sun, 24 Dec 2023   Prob (F-statistic):           0.000439
+Time:                             10:17:27   Log-Likelihood:                 7256.2
+No. Observations:                     4283   AIC:                        -1.451e+04
+Df Residuals:                         4281   BIC:                        -1.450e+04
+Df Model:                                1                                         
+Covariance Type:                 nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+const                0.0030      0.001      4.377      0.000       0.002       0.004
+extreme_low_0.05     0.0639      0.018      3.518      0.000       0.028       0.100
+==============================================================================
+Omnibus:                      693.911   Durbin-Watson:                   0.727
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):            11432.226
+Skew:                          -0.216   Prob(JB):                         0.00
+Kurtosis:                      10.992   Cond. No.                         26.7
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                              
+===================================================================================
+Dep. Variable:     forward_3_period_return   R-squared:                       0.003
+Model:                                 OLS   Adj. R-squared:                  0.003
+Method:                      Least Squares   F-statistic:                     13.97
+Date:                     Sun, 24 Dec 2023   Prob (F-statistic):           0.000188
+Time:                             10:17:27   Log-Likelihood:                 7257.0
+No. Observations:                     4283   AIC:                        -1.451e+04
+Df Residuals:                         4281   BIC:                        -1.450e+04
+Df Model:                                1                                         
+Covariance Type:                 nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+const                0.0030      0.001      4.412      0.000       0.002       0.004
+extreme_low_0.10     0.0960      0.026      3.738      0.000       0.046       0.146
+==============================================================================
+Omnibus:                      692.032   Durbin-Watson:                   0.731
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):            11520.733
+Skew:                          -0.204   Prob(JB):                         0.00
+Kurtosis:                      11.024   Cond. No.                         37.8
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+Regression analysis for forward 9 period return:
+                               OLS Regression Results                              
+===================================================================================
+Dep. Variable:     forward_9_period_return   R-squared:                       0.015
+Model:                                 OLS   Adj. R-squared:                  0.015
+Method:                      Least Squares   F-statistic:                     66.41
+Date:                     Sun, 24 Dec 2023   Prob (F-statistic):           4.75e-16
+Time:                             10:17:27   Log-Likelihood:                 5086.7
+No. Observations:                     4283   AIC:                        -1.017e+04
+Df Residuals:                         4281   BIC:                        -1.016e+04
+Df Model:                                1                                         
+Covariance Type:                 nonrobust                                         
+=====================================================================================
+                        coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                 0.0061      0.001      5.191      0.000       0.004       0.008
+extreme_high_0.05     0.0325      0.004      8.150      0.000       0.025       0.040
+==============================================================================
+Omnibus:                      370.851   Durbin-Watson:                   0.261
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1852.581
+Skew:                          -0.260   Prob(JB):                         0.00
+Kurtosis:                       6.180   Cond. No.                         3.56
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                              
+===================================================================================
+Dep. Variable:     forward_9_period_return   R-squared:                       0.017
+Model:                                 OLS   Adj. R-squared:                  0.016
+Method:                      Least Squares   F-statistic:                     72.07
+Date:                     Sun, 24 Dec 2023   Prob (F-statistic):           2.83e-17
+Time:                             10:17:27   Log-Likelihood:                 5089.5
+No. Observations:                     4283   AIC:                        -1.018e+04
+Df Residuals:                         4281   BIC:                        -1.016e+04
+Df Model:                                1                                         
+Covariance Type:                 nonrobust                                         
+=====================================================================================
+                        coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                 0.0073      0.001      6.367      0.000       0.005       0.010
+extreme_high_0.10     0.0558      0.007      8.489      0.000       0.043       0.069
+==============================================================================
+Omnibus:                      367.262   Durbin-Watson:                   0.264
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1843.983
+Skew:                          -0.251   Prob(JB):                         0.00
+Kurtosis:                       6.175   Cond. No.                         5.83
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                              
+===================================================================================
+Dep. Variable:     forward_9_period_return   R-squared:                       0.000
+Model:                                 OLS   Adj. R-squared:                 -0.000
+Method:                      Least Squares   F-statistic:                   0.05134
+Date:                     Sun, 24 Dec 2023   Prob (F-statistic):              0.821
+Time:                             10:17:27   Log-Likelihood:                 5053.8
+No. Observations:                     4283   AIC:                        -1.010e+04
+Df Residuals:                         4281   BIC:                        -1.009e+04
+Df Model:                                1                                         
+Covariance Type:                 nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+const                0.0090      0.001      7.905      0.000       0.007       0.011
+extreme_low_0.05    -0.0069      0.030     -0.227      0.821      -0.066       0.053
+==============================================================================
+Omnibus:                      345.029   Durbin-Watson:                   0.242
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1886.670
+Skew:                          -0.148   Prob(JB):                         0.00
+Kurtosis:                       6.238   Cond. No.                         26.7
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                              
+===================================================================================
+Dep. Variable:     forward_9_period_return   R-squared:                       0.000
+Model:                                 OLS   Adj. R-squared:                  0.000
+Method:                      Least Squares   F-statistic:                     1.362
+Date:                     Sun, 24 Dec 2023   Prob (F-statistic):              0.243
+Time:                             10:17:27   Log-Likelihood:                 5054.4
+No. Observations:                     4283   AIC:                        -1.010e+04
+Df Residuals:                         4281   BIC:                        -1.009e+04
+Df Model:                                1                                         
+Covariance Type:                 nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+const                0.0090      0.001      7.931      0.000       0.007       0.011
+extreme_low_0.10    -0.0501      0.043     -1.167      0.243      -0.134       0.034
+==============================================================================
+Omnibus:                      344.986   Durbin-Watson:                   0.242
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1891.998
+Skew:                          -0.145   Prob(JB):                         0.00
+Kurtosis:                       6.243   Cond. No.                         37.8
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+Regression analysis for forward 21 period return:
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     forward_21_period_return   R-squared:                       0.038
+Model:                                  OLS   Adj. R-squared:                  0.038
+Method:                       Least Squares   F-statistic:                     170.8
+Date:                      Sun, 24 Dec 2023   Prob (F-statistic):           2.71e-38
+Time:                              10:17:27   Log-Likelihood:                 3198.7
+No. Observations:                      4283   AIC:                            -6393.
+Df Residuals:                          4281   BIC:                            -6381.
+Df Model:                                 1                                         
+Covariance Type:                  nonrobust                                         
+=====================================================================================
+                        coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                 0.0143      0.002      7.778      0.000       0.011       0.018
+extreme_high_0.05     0.0809      0.006     13.067      0.000       0.069       0.093
+==============================================================================
+Omnibus:                      205.324   Durbin-Watson:                   0.132
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):              683.945
+Skew:                          -0.121   Prob(JB):                    3.04e-149
+Kurtosis:                       4.943   Cond. No.                         3.56
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     forward_21_period_return   R-squared:                       0.038
+Model:                                  OLS   Adj. R-squared:                  0.038
+Method:                       Least Squares   F-statistic:                     168.9
+Date:                      Sun, 24 Dec 2023   Prob (F-statistic):           6.65e-38
+Time:                              10:17:27   Log-Likelihood:                 3197.8
+No. Observations:                      4283   AIC:                            -6392.
+Df Residuals:                          4281   BIC:                            -6379.
+Df Model:                                 1                                         
+Covariance Type:                  nonrobust                                         
+=====================================================================================
+                        coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                 0.0173      0.002      9.744      0.000       0.014       0.021
+extreme_high_0.10     0.1328      0.010     12.996      0.000       0.113       0.153
+==============================================================================
+Omnibus:                      225.464   Durbin-Watson:                   0.136
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):              841.748
+Skew:                          -0.090   Prob(JB):                    1.65e-183
+Kurtosis:                       5.164   Cond. No.                         5.83
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     forward_21_period_return   R-squared:                       0.000
+Model:                                  OLS   Adj. R-squared:                 -0.000
+Method:                       Least Squares   F-statistic:                    0.2730
+Date:                      Sun, 24 Dec 2023   Prob (F-statistic):              0.601
+Time:                              10:17:27   Log-Likelihood:                 3115.1
+No. Observations:                      4283   AIC:                            -6226.
+Df Residuals:                          4281   BIC:                            -6213.
+Df Model:                                 1                                         
+Covariance Type:                  nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+const                0.0213      0.002     11.934      0.000       0.018       0.025
+extreme_low_0.05     0.0250      0.048      0.523      0.601      -0.069       0.119
+==============================================================================
+Omnibus:                      245.639   Durbin-Watson:                   0.101
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):              987.480
+Skew:                           0.094   Prob(JB):                    3.73e-215
+Kurtosis:                       5.345   Cond. No.                         26.7
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     forward_21_period_return   R-squared:                       0.000
+Model:                                  OLS   Adj. R-squared:                 -0.000
+Method:                       Least Squares   F-statistic:                    0.3691
+Date:                      Sun, 24 Dec 2023   Prob (F-statistic):              0.544
+Time:                              10:17:27   Log-Likelihood:                 3115.1
+No. Observations:                      4283   AIC:                            -6226.
+Df Residuals:                          4281   BIC:                            -6214.
+Df Model:                                 1                                         
+Covariance Type:                  nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+const                0.0213      0.002     11.941      0.000       0.018       0.025
+extreme_low_0.10     0.0410      0.068      0.608      0.544      -0.091       0.173
+==============================================================================
+Omnibus:                      245.635   Durbin-Watson:                   0.102
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):              987.645
+Skew:                           0.094   Prob(JB):                    3.43e-215
+Kurtosis:                       5.345   Cond. No.                         37.8
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+Regression analysis for forward 42 period return:
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     forward_42_period_return   R-squared:                       0.043
+Model:                                  OLS   Adj. R-squared:                  0.043
+Method:                       Least Squares   F-statistic:                     194.0
+Date:                      Sun, 24 Dec 2023   Prob (F-statistic):           3.65e-43
+Time:                              10:17:27   Log-Likelihood:                 1332.4
+No. Observations:                      4283   AIC:                            -2661.
+Df Residuals:                          4281   BIC:                            -2648.
+Df Model:                                 1                                         
+Covariance Type:                  nonrobust                                         
+=====================================================================================
+                        coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                 0.0326      0.003     11.506      0.000       0.027       0.038
+extreme_high_0.05     0.1334      0.010     13.929      0.000       0.115       0.152
+==============================================================================
+Omnibus:                      400.414   Durbin-Watson:                   0.077
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):              980.627
+Skew:                           0.552   Prob(JB):                    1.15e-213
+Kurtosis:                       5.068   Cond. No.                         3.56
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     forward_42_period_return   R-squared:                       0.032
+Model:                                  OLS   Adj. R-squared:                  0.031
+Method:                       Least Squares   F-statistic:                     139.3
+Date:                      Sun, 24 Dec 2023   Prob (F-statistic):           1.19e-31
+Time:                              10:17:27   Log-Likelihood:                 1306.0
+No. Observations:                      4283   AIC:                            -2608.
+Df Residuals:                          4281   BIC:                            -2595.
+Df Model:                                 1                                         
+Covariance Type:                  nonrobust                                         
+=====================================================================================
+                        coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                 0.0387      0.003     13.963      0.000       0.033       0.044
+extreme_high_0.10     0.1875      0.016     11.801      0.000       0.156       0.219
+==============================================================================
+Omnibus:                      560.251   Durbin-Watson:                   0.075
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1539.130
+Skew:                           0.713   Prob(JB):                         0.00
+Kurtosis:                       5.567   Cond. No.                         5.83
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     forward_42_period_return   R-squared:                       0.000
+Model:                                  OLS   Adj. R-squared:                 -0.000
+Method:                       Least Squares   F-statistic:                   0.03135
+Date:                      Sun, 24 Dec 2023   Prob (F-statistic):              0.859
+Time:                              10:17:27   Log-Likelihood:                 1237.5
+No. Observations:                      4283   AIC:                            -2471.
+Df Residuals:                          4281   BIC:                            -2458.
+Df Model:                                 1                                         
+Covariance Type:                  nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+const                0.0444      0.003     16.005      0.000       0.039       0.050
+extreme_low_0.05    -0.0131      0.074     -0.177      0.859      -0.158       0.132
+==============================================================================
+Omnibus:                      669.103   Durbin-Watson:                   0.049
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1852.650
+Skew:                           0.838   Prob(JB):                         0.00
+Kurtosis:                       5.752   Cond. No.                         26.7
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     forward_42_period_return   R-squared:                       0.000
+Model:                                  OLS   Adj. R-squared:                 -0.000
+Method:                       Least Squares   F-statistic:                    0.1414
+Date:                      Sun, 24 Dec 2023   Prob (F-statistic):              0.707
+Time:                              10:17:27   Log-Likelihood:                 1237.6
+No. Observations:                      4283   AIC:                            -2471.
+Df Residuals:                          4281   BIC:                            -2458.
+Df Model:                                 1                                         
+Covariance Type:                  nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+const                0.0443      0.003     15.994      0.000       0.039       0.050
+extreme_low_0.10     0.0394      0.105      0.376      0.707      -0.166       0.245
+==============================================================================
+Omnibus:                      669.726   Durbin-Watson:                   0.049
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1854.587
+Skew:                           0.839   Prob(JB):                         0.00
+Kurtosis:                       5.753   Cond. No.                         37.8
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+Regression analysis for forward 84 period return:
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     forward_84_period_return   R-squared:                       0.049
+Model:                                  OLS   Adj. R-squared:                  0.049
+Method:                       Least Squares   F-statistic:                     221.2
+Date:                      Sun, 24 Dec 2023   Prob (F-statistic):           8.16e-49
+Time:                              10:17:27   Log-Likelihood:                -716.67
+No. Observations:                      4283   AIC:                             1437.
+Df Residuals:                          4281   BIC:                             1450.
+Df Model:                                 1                                         
+Covariance Type:                  nonrobust                                         
+=====================================================================================
+                        coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                 0.0747      0.005     16.309      0.000       0.066       0.084
+extreme_high_0.05     0.2297      0.015     14.872      0.000       0.199       0.260
+==============================================================================
+Omnibus:                      535.144   Durbin-Watson:                   0.050
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):              942.347
+Skew:                           0.830   Prob(JB):                    2.35e-205
+Kurtosis:                       4.590   Cond. No.                         3.56
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     forward_84_period_return   R-squared:                       0.042
+Model:                                  OLS   Adj. R-squared:                  0.042
+Method:                       Least Squares   F-statistic:                     187.7
+Date:                      Sun, 24 Dec 2023   Prob (F-statistic):           7.51e-42
+Time:                              10:17:27   Log-Likelihood:                -732.63
+No. Observations:                      4283   AIC:                             1469.
+Df Residuals:                          4281   BIC:                             1482.
+Df Model:                                 1                                         
+Covariance Type:                  nonrobust                                         
+=====================================================================================
+                        coef    std err          t      P>|t|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                 0.0842      0.004     18.891      0.000       0.075       0.093
+extreme_high_0.10     0.3505      0.026     13.701      0.000       0.300       0.401
+==============================================================================
+Omnibus:                      699.355   Durbin-Watson:                   0.054
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1372.515
+Skew:                           0.996   Prob(JB):                    9.17e-299
+Kurtosis:                       4.929   Cond. No.                         5.83
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     forward_84_period_return   R-squared:                       0.000
+Model:                                  OLS   Adj. R-squared:                 -0.000
+Method:                       Least Squares   F-statistic:                    0.3838
+Date:                      Sun, 24 Dec 2023   Prob (F-statistic):              0.536
+Time:                              10:17:27   Log-Likelihood:                -824.35
+No. Observations:                      4283   AIC:                             1653.
+Df Residuals:                          4281   BIC:                             1665.
+Df Model:                                 1                                         
+Covariance Type:                  nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+const                0.0949      0.004     21.159      0.000       0.086       0.104
+extreme_low_0.05    -0.0743      0.120     -0.619      0.536      -0.309       0.161
+==============================================================================
+Omnibus:                      778.508   Durbin-Watson:                   0.022
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1530.999
+Skew:                           1.097   Prob(JB):                         0.00
+Kurtosis:                       4.939   Cond. No.                         26.7
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+                               OLS Regression Results                               
+====================================================================================
+Dep. Variable:     forward_84_period_return   R-squared:                       0.000
+Model:                                  OLS   Adj. R-squared:                 -0.000
+Method:                       Least Squares   F-statistic:                    0.2073
+Date:                      Sun, 24 Dec 2023   Prob (F-statistic):              0.649
+Time:                              10:17:27   Log-Likelihood:                -824.44
+No. Observations:                      4283   AIC:                             1653.
+Df Residuals:                          4281   BIC:                             1666.
+Df Model:                                 1                                         
+Covariance Type:                  nonrobust                                         
+====================================================================================
+                       coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------------
+const                0.0949      0.004     21.155      0.000       0.086       0.104
+extreme_low_0.10    -0.0772      0.169     -0.455      0.649      -0.409       0.255
+==============================================================================
+Omnibus:                      778.881   Durbin-Watson:                   0.022
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):             1531.914
+Skew:                           1.098   Prob(JB):                         0.00
+Kurtosis:                       4.940   Cond. No.                         37.8
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+Confidence intervals for forward 1 period return:
+extreme_high_0.05: (-0.000566068842700902, 0.006555096310238949)
+extreme_high_0.10: (0.002035159770052939, 0.017659996565689822)
+extreme_low_0.05: (-0.08796583044297217, 0.06635492393091204)
+extreme_low_0.10: (-0.20454962447801264, 0.15510675429221835)
+Confidence intervals for forward 3 period return:
+extreme_high_0.05: (0.007445481499108795, 0.01905893214330772)
+extreme_high_0.10: (0.009729163293229261, 0.033534955348837256)
+extreme_low_0.05: (-0.024483284472192945, 0.15827940662139373)
+extreme_low_0.10: (-0.0013498244518680563, 0.19934635279470997)
+Confidence intervals for forward 9 period return:
+extreme_high_0.05: (0.028317983274727853, 0.048891547561025456)
+extreme_high_0.10: (0.04374139757689964, 0.0823687561598813)
+extreme_low_0.05: (-0.11938889016476538, 0.12359833963884388)
+extreme_low_0.10: (-0.43073547942956875, 0.3485138099385993)
+Confidence intervals for forward 21 period return:
+extreme_high_0.05: (0.0784787407115592, 0.11190554660890163)
+extreme_high_0.10: (0.11925228385582198, 0.18100608908806815)
+extreme_low_0.05: (-0.017658718410985846, 0.11026995508809043)
+extreme_low_0.10: (-0.1431507563232807, 0.2679110112688572)
+Confidence intervals for forward 42 period return:
+extreme_high_0.05: (0.13701126615221892, 0.19499901864192531)
+extreme_high_0.10: (0.17797994842670736, 0.2743846559346222)
+extreme_low_0.05: (-0.05350829235260877, 0.11601567462550336)
+extreme_low_0.10: (-0.08889075448693393, 0.25628221995963063)
+Confidence intervals for forward 84 period return:
+extreme_high_0.05: (0.25834243962825726, 0.3504638927428057)
+extreme_high_0.10: (0.36177474950792854, 0.5075196530582017)
+extreme_low_0.05: (-0.12455043030408312, 0.16589582544859405)
+extreme_low_0.10: (-0.5133511158009783, 0.5487865405238745)
+
+Cohen's d for forward 1 period return (extreme_high_0.05 vs no extreme): 0.08335983161263279
+Cohen's d for forward 3 period return (extreme_high_0.05 vs no extreme): 0.2513675014465408
+Cohen's d for forward 9 period return (extreme_high_0.05 vs no extreme): 0.4400380175815024
+Cohen's d for forward 21 period return (extreme_high_0.05 vs no extreme): 0.7055717959347962
+Cohen's d for forward 42 period return (extreme_high_0.05 vs no extreme): 0.7521014072497904
+Cohen's d for forward 84 period return (extreme_high_0.05 vs no extreme): 0.8030108348648282
+Cohen's d for forward 1 period return (extreme_high_0.10 vs no extreme): 0.3518352879636514
+Cohen's d for forward 3 period return (extreme_high_0.10 vs no extreme): 0.4311043778560478
+Cohen's d for forward 9 period return (extreme_high_0.10 vs no extreme): 0.7561272878904021
+Cohen's d for forward 21 period return (extreme_high_0.10 vs no extreme): 1.1575434592275242
+Cohen's d for forward 42 period return (extreme_high_0.10 vs no extreme): 1.0510527565879726
+Cohen's d for forward 84 period return (extreme_high_0.10 vs no extreme): 1.220359764729582
+Cohen's d for forward 1 period return (extreme_low_0.05 vs no extreme): -0.45733995276111256
+Cohen's d for forward 3 period return (extreme_low_0.05 vs no extreme): 1.4373506057793315
+Cohen's d for forward 9 period return (extreme_low_0.05 vs no extreme): -0.0925709698191661
+Cohen's d for forward 21 period return (extreme_low_0.05 vs no extreme): 0.21347080741251784
+Cohen's d for forward 42 period return (extreme_low_0.05 vs no extreme): -0.07233822827574007
+Cohen's d for forward 84 period return (extreme_low_0.05 vs no extreme): -0.2530854217686411
+Cohen's d for forward 1 period return (extreme_low_0.10 vs no extreme): -0.9948045335696892
+Cohen's d for forward 3 period return (extreme_low_0.10 vs no extreme): 2.1590578312180613
+Cohen's d for forward 9 period return (extreme_low_0.10 vs no extreme): -0.674085587959953
+Cohen's d for forward 21 period return (extreme_low_0.10 vs no extreme): 0.35086992100419684
+Cohen's d for forward 42 period return (extreme_low_0.10 vs no extreme): 0.21718377387173385
+Cohen's d for forward 84 period return (extreme_low_0.10 vs no extreme): -0.2629813572365128
