@@ -109,84 +109,73 @@ with open('simple_stats_output.txt', 'w') as f:
     f.write("\n")
     f.write('******************************\nPrice returns ex funding rates\n******************************\n')
     for period in periods:
+        f.write(f"==========================\nForward {period} Period Returns\n==========================\n")
         # Loop over the extreme conditions
-        for condition in extreme_conditions:
-            # Get the forward returns for each group
-            condition_true = results[results[condition] == True][f'forward_{period}_period_return']
-            condition_false = results[results[condition] == False][f'forward_{period}_period_return']
-            
-            # Perform a t-test
-            t_stat, p_value = stats.ttest_ind(condition_true, condition_false, nan_policy='omit')
-            
-            f.write(f'T-test for forward {period} period return when {condition} is True:\n')
-            f.write(f't-statistic: {t_stat}\n')
-            f.write(f'p-value: {p_value}\n')
-        
-    # Loop over the periods to perform correlation tests
-    f.write("\n")
-    for period in periods:
-        f.write(f'Correlation with forward {period} period return:\n')
-        # Loop over the extreme conditions
-        for condition in extreme_conditions:
-            # Calculate the correlation
-            correlation = results[condition].corr(results[f'forward_{period}_period_return'])
-            f.write(f'{condition}: {correlation}\n')
-            
-    
-    # Loop over the periods to perform regression analysis
-    f.write("\n")
-    for period in periods:
-        f.write(f'Regression analysis for forward {period} period return:\n')
-        # Loop over the extreme conditions
-        for condition in extreme_conditions:
-            # Define the dependent variable (forward return)
-            Y = results[f'forward_{period}_period_return']
-            # Define the independent variable (extreme condition)
-            X = results[condition]
-            X = X.astype(int)
-            # Add a constant to the independent variable
-            X = sm.add_constant(X)
-            # Perform the regression analysis
-            model = sm.OLS(Y, X, missing='drop')
-            fit_results = model.fit()
-            f.write(fit_results.summary().as_text())
-            f.write("\n")
-            
-    # Confidence level
-    confidence_level = 0.95
-    # Loop over the periods to perform confidence intervals tests
-    f.write("\n")
-    for period in periods:
-        f.write(f'Confidence intervals for forward {period} period return:\n')
-        # Loop over the extreme conditions
-        for condition in extreme_conditions:
-            # Get the forward returns for the condition
-            returns = results[results[condition] == True][f'forward_{period}_period_return']
-            # Calculate the mean and standard error
-            mean = returns.mean()
-            se = stats.sem(returns)
-            # Calculate the confidence interval
-            ci = stats.t.interval(confidence_level, len(returns)-1, loc=mean, scale=se)
-            f.write(f'{condition}: {ci}\n')
-            
-    # Function to calculate Cohen's d
-    def cohens_d(group1, group2):
-        # Calculate the size of samples
-        n1, n2 = len(group1), len(group2)
-        # Calculate the variance of the samples
-        s1, s2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
-        # Calculate the pooled standard deviation
-        s = np.sqrt(((n1 - 1) * s1 + (n2 - 1) * s2) / (n1 + n2 - 2))
-        # Calculate Cohen's d
-        u1, u2 = np.mean(group1), np.mean(group2)
-        return (u1 - u2) / s
+        for condition_pair in extreme_conditions_pairs:
+            for condition in condition_pair:
+                f.write(f"--------------------------\n{condition}\n--------------------------\n")
+                # Get the forward returns for each group
+                condition_true = results[results[condition] == True][f'forward_{period}_period_return']
+                condition_false = results[results[condition] == False][f'forward_{period}_period_return']
 
-    f.write("\n")
-    for condition in extreme_conditions:
-        for period in periods:
-            extreme_returns = results[results[condition]][f'forward_{period}_period_return']
-            no_extreme_returns = results[~results[condition]][f'forward_{period}_period_return']
+                # Perform a t-test
+                t_stat, p_value = stats.ttest_ind(condition_true, condition_false, nan_policy='omit')
 
-            # Calculate Cohen's d for extreme vs no extreme
-            d = cohens_d(extreme_returns, no_extreme_returns)
-            f.write(f"Cohen's d for forward {period} period return ({condition} vs no extreme): {d}\n")
+                f.write(f'T-test for forward {period} period return when {condition} is True:\n')
+                f.write(f't-statistic: {t_stat}\n')
+                f.write(f'p-value: {p_value}\n')
+                f.write("\n")
+                
+                # Perform correlation tests
+                f.write(f'Correlation with forward {period} period return:\n')
+
+                # Calculate the correlation
+                correlation = results[condition].corr(results[f'forward_{period}_period_return'])
+                f.write(f'{condition}: {correlation}\n')
+                f.write("\n")
+
+                # Perform regression analysis
+                f.write(f'Regression analysis for forward {period} period return:\n')
+                # Define the dependent variable (forward return)
+                Y = results[f'forward_{period}_period_return']
+                # Define the independent variable (extreme condition)
+                X = results[condition]
+                X = X.astype(int)
+                # Add a constant to the independent variable
+                X = sm.add_constant(X)
+                # Perform the regression analysis
+                model = sm.OLS(Y, X, missing='drop')
+                fit_results = model.fit()
+                f.write(fit_results.summary().as_text())
+                f.write("\n")
+            
+                # Confidence level
+                confidence_level = 0.95
+                # Perform confidence intervals tests
+                f.write(f'Confidence intervals for forward {period} period return:\n')
+                # Get the forward returns for the condition
+                returns = results[results[condition] == True][f'forward_{period}_period_return']
+                # Calculate the mean and standard error
+                mean = returns.mean()
+                se = stats.sem(returns)
+                # Calculate the confidence interval
+                ci = stats.t.interval(confidence_level, len(returns)-1, loc=mean, scale=se)
+                f.write(f'{condition}: {ci}\n')
+                f.write("\n")
+                
+                # Function to calculate Cohen's d
+                def cohens_d(group1, group2):
+                    # Calculate the size of samples
+                    n1, n2 = len(group1), len(group2)
+                    # Calculate the variance of the samples
+                    s1, s2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
+                    # Calculate the pooled standard deviation
+                    s = np.sqrt(((n1 - 1) * s1 + (n2 - 1) * s2) / (n1 + n2 - 2))
+                    # Calculate Cohen's d
+                    u1, u2 = np.mean(group1), np.mean(group2)
+                    return (u1 - u2) / s
+                extreme_returns = results[results[condition]][f'forward_{period}_period_return']
+                no_extreme_returns = results[~results[condition]][f'forward_{period}_period_return']
+                # Calculate Cohen's d for extreme vs no extreme
+                d = cohens_d(extreme_returns, no_extreme_returns)
+                f.write(f"Cohen's d for forward {period} period return ({condition} vs no extreme): {d}\n")
