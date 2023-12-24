@@ -105,15 +105,15 @@ results['extreme_low_0.10'] = (results['med_funding_rate'] < -0.0010)
 
 extreme_conditions = ['extreme_high_0.05','extreme_high_0.10','extreme_low_0.05','extreme_low_0.10']
 extreme_conditions_pairs = [('extreme_high_0.05','extreme_high_0.10'),('extreme_low_0.05','extreme_low_0.10')]
+
 with open('simple_stats_output.txt', 'w') as f:
-    f.write("\n")
-    f.write('******************************\nPrice returns ex funding rates\n******************************\n')
+    f.write('******************************\nPrice Returns ex Funding Rates\n******************************\n')
     for period in periods:
-        f.write(f"==========================\nForward {period} Period Returns\n==========================\n")
+        f.write(f"\n\n==============================================================================\nForward {period} Period Returns\n==============================================================================")
         # Loop over the extreme conditions
         for condition_pair in extreme_conditions_pairs:
             for condition in condition_pair:
-                f.write(f"--------------------------\n{condition}\n--------------------------\n")
+                f.write(f"\n----------------------------------------------------\nForward {period} Period Returns Statistics When {condition} is True\n----------------------------------------------------\n")
                 # Get the forward returns for each group
                 condition_true = results[results[condition] == True][f'forward_{period}_period_return']
                 condition_false = results[results[condition] == False][f'forward_{period}_period_return']
@@ -121,13 +121,13 @@ with open('simple_stats_output.txt', 'w') as f:
                 # Perform a t-test
                 t_stat, p_value = stats.ttest_ind(condition_true, condition_false, nan_policy='omit')
 
-                f.write(f'T-test for forward {period} period return when {condition} is True:\n')
+                f.write(f'***********T-test***********\n')
                 f.write(f't-statistic: {t_stat}\n')
                 f.write(f'p-value: {p_value}\n')
                 f.write("\n")
                 
                 # Perform correlation tests
-                f.write(f'Correlation with forward {period} period return:\n')
+                f.write(f'***********Correlation***********\n')
 
                 # Calculate the correlation
                 correlation = results[condition].corr(results[f'forward_{period}_period_return'])
@@ -135,7 +135,7 @@ with open('simple_stats_output.txt', 'w') as f:
                 f.write("\n")
 
                 # Perform regression analysis
-                f.write(f'Regression analysis for forward {period} period return:\n')
+                f.write(f'*********** OLS Regression Analysis***********\n')
                 # Define the dependent variable (forward return)
                 Y = results[f'forward_{period}_period_return']
                 # Define the independent variable (extreme condition)
@@ -152,7 +152,7 @@ with open('simple_stats_output.txt', 'w') as f:
                 # Confidence level
                 confidence_level = 0.95
                 # Perform confidence intervals tests
-                f.write(f'Confidence intervals for forward {period} period return:\n')
+                f.write(f'\n***********Confidence Intervals***********\n')
                 # Get the forward returns for the condition
                 returns = results[results[condition] == True][f'forward_{period}_period_return']
                 # Calculate the mean and standard error
@@ -178,4 +178,5 @@ with open('simple_stats_output.txt', 'w') as f:
                 no_extreme_returns = results[~results[condition]][f'forward_{period}_period_return']
                 # Calculate Cohen's d for extreme vs no extreme
                 d = cohens_d(extreme_returns, no_extreme_returns)
-                f.write(f"Cohen's d for forward {period} period return ({condition} vs no extreme): {d}\n")
+                f.write(f"***********Cohen's D ***********\n")
+                f.write(f"{condition}: {d}\n")
